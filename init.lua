@@ -24,6 +24,14 @@ require("lazy").setup({
       require "options"
     end,
   },
+  {
+    "xiyaowong/transparent.nvim",
+    lazy = false,
+    enabled = true,
+    config = function()
+      require "configs.transparent"
+    end,
+  },
 
   { import = "plugins" },
 }, lazy_config)
