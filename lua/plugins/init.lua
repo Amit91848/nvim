@@ -363,61 +363,122 @@ return {
   {
     "nvimdev/dashboard-nvim",
     event = "VimEnter",
-    opts = {
-      theme = "doom",
-      config = {
-        header = {
-          "",
-          "",
-          "███╗   ██╗███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗",
-          "████╗  ██║██╔════╝██╔═══██╗██║   ██║██║████╗ ████║",
-          "██╔██╗ ██║█████╗  ██║   ██║██║   ██║██║██╔████╔██║",
-          "██║╚██╗██║██╔══╝  ██║   ██║╚██╗ ██╔╝██║██║╚██╔╝██║",
-          "██║ ╚████║███████╗╚██████╔╝ ╚████╔╝ ██║██║ ╚═╝ ██║",
-          "╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝",
-          "",
-          "",
+    opts = function()
+      local logo = [[
+      ███╗   ██╗███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗
+      ████╗  ██║██╔════╝██╔═══██╗██║   ██║██║████╗ ████║
+      ██╔██╗ ██║█████╗  ██║   ██║██║   ██║██║██╔████╔██║
+      ██║╚██╗██║██╔══╝  ██║   ██║╚██╗ ██╔╝██║██║╚██╔╝██║
+      ██║ ╚████║███████╗╚██████╔╝ ╚████╔╝ ██║██║ ╚═╝ ██║
+      ╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝
+      ]]
+
+      logo = string.rep("\n", 8) .. logo .. "\n\n"
+
+      local opts = {
+        theme = "doom",
+        hide = {
+          statusline = false,
         },
-        center = {
-          {
-            icon = "  ",
-            desc = "Find File                               ",
-            key = "f",
-            action = "Telescope find_files",
+        config = {
+          header = vim.split(logo, "\n"),
+          center = {
+            {
+              action = "Telescope find_files",
+              desc = " Find File",
+              icon = " ",
+              key = "f",
+            },
+            {
+              action = "Telescope oldfiles",
+              desc = " Recent Files",
+              icon = " ",
+              key = "r",
+            },
+            {
+              action = "Telescope live_grep",
+              desc = " Find Text",
+              icon = " ",
+              key = "g",
+            },
+            {
+              action = "Telescope projects",
+              desc = " Projects",
+              icon = " ",
+              key = "p",
+            },
+            {
+              action = 'lua require("persistence").load()',
+              desc = " Restore Session",
+              icon = " ",
+              key = "s",
+            },
+            {
+              action = "Lazy",
+              desc = " Lazy",
+              icon = "󰒲 ",
+              key = "l",
+            },
+            {
+              action = "Mason",
+              desc = " Mason",
+              icon = " ",
+              key = "m",
+            },
+            {
+              action = "e ~/.config/nvim/init.lua",
+              desc = " Config",
+              icon = " ",
+              key = "c",
+            },
+            {
+              action = "qa",
+              desc = " Quit",
+              icon = " ",
+              key = "q",
+            },
           },
-          {
-            icon = "  ",
-            desc = "Recent Files                            ",
-            key = "r",
-            action = "Telescope oldfiles",
-          },
-          {
-            icon = "  ",
-            desc = "Find Word                               ",
-            key = "g",
-            action = "Telescope live_grep",
-          },
-          {
-            icon = "  ",
-            desc = "New File                                ",
-            key = "n",
-            action = "enew",
-          },
-          {
-            icon = "  ",
-            desc = "Config                                  ",
-            key = "c",
-            action = "e ~/.config/nvim/init.lua",
-          },
-          {
-            icon = "  ",
-            desc = "Quit                                    ",
-            key = "q",
-            action = "qa",
-          },
+          footer = function()
+            local stats = require("lazy").stats()
+            local ms = (math.floor(stats.startuptime * 100 + 0.5) / 100)
+
+            -- Get current date and time
+            local datetime = os.date(" %Y-%m-%d   %H:%M:%S")
+
+            -- Plugin stats
+            local plugin_count = "⚡ " .. stats.loaded .. "/" .. stats.count .. " plugins loaded in " .. ms .. "ms"
+
+            -- Git branch if in a git repo
+            local git_branch = vim.fn.system("git branch --show-current 2>/dev/null | tr -d '\n'")
+            local git_info = ""
+            if git_branch ~= "" then
+              git_info = "  " .. git_branch
+            end
+
+            return {
+              "",
+              plugin_count,
+              datetime .. git_info,
+              "",
+              "󱐋 Neovim v" .. vim.version().major .. "." .. vim.version().minor .. "." .. vim.version().patch,
+            }
+          end,
         },
-      },
-    },
+      }
+
+      -- Close Lazy and re-open when the dashboard is ready
+      if vim.o.filetype == "lazy" then
+        vim.cmd.close()
+        vim.api.nvim_create_autocmd("User", {
+          pattern = "DashboardLoaded",
+          callback = function()
+            require("lazy").show()
+          end,
+        })
+      end
+
+      return opts
+    end,
     dependencies = { "nvim-tree/nvim-web-devicons" },
   },
 
@@ -603,5 +664,72 @@ return {
       floating_window = true,
       hint_enable = false, -- Disable virtual text hint (can cause lag)
     },
+  },
+
+  -- Session management
+  {
+    "folke/persistence.nvim",
+    event = "BufReadPre",
+    opts = {
+      options = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp" },
+    },
+    keys = {
+      {
+        "<leader>qs",
+        function()
+          require("persistence").load()
+        end,
+        desc = "Restore Session",
+      },
+      {
+        "<leader>ql",
+        function()
+          require("persistence").load { last = true }
+        end,
+        desc = "Restore Last Session",
+      },
+      {
+        "<leader>qd",
+        function()
+          require("persistence").stop()
+        end,
+        desc = "Don't Save Current Session",
+      },
+    },
+  },
+
+  -- Project management
+  {
+    "ahmedkhalf/project.nvim",
+    event = "VeryLazy",
+    opts = {
+      detection_methods = { "pattern", "lsp" },
+      patterns = { ".git", "package.json", "Cargo.toml", "go.mod" },
+      ignore_lsp = {},
+      show_hidden = false,
+    },
+    config = function(_, opts)
+      require("project_nvim").setup(opts)
+      require("telescope").load_extension "projects"
+    end,
+    keys = {
+      { "<leader>fp", "<cmd>Telescope projects<cr>", desc = "Projects" },
+    },
+  },
+
+  -- Better vim.ui
+  {
+    "stevearc/dressing.nvim",
+    lazy = true,
+    init = function()
+      vim.ui.select = function(...)
+        require("lazy").load { plugins = { "dressing.nvim" } }
+        return vim.ui.select(...)
+      end
+      vim.ui.input = function(...)
+        require("lazy").load { plugins = { "dressing.nvim" } }
+        return vim.ui.input(...)
+      end
+    end,
   },
 }
