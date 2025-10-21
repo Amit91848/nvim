@@ -63,10 +63,11 @@ opt.mouse = "a"
 opt.showmode = false
 opt.inccommand = "split"
 
--- Fold settings
-opt.foldmethod = "expr"
-opt.foldexpr = "nvim_treesitter#foldexpr()"
-opt.foldenable = false
+-- Fold settings (handled by nvim-ufo)
+opt.foldcolumn = "0"
+opt.foldlevel = 99
+opt.foldlevelstart = 99
+opt.foldenable = true
 
 -- Disable some builtin vim plugins
 local disabled_built_ins = {

@@ -71,7 +71,53 @@ return {
       },
       indent = { enable = true },
       autotag = { enable = true },
+      incremental_selection = {
+        enable = true,
+        keymaps = {
+          init_selection = "<C-space>",
+          node_incremental = "<C-space>",
+          scope_incremental = false,
+          node_decremental = "<bs>",
+        },
+      },
     },
+  },
+
+  -- Treesitter text objects
+  {
+    "nvim-treesitter/nvim-treesitter-textobjects",
+    event = "BufRead",
+    dependencies = "nvim-treesitter/nvim-treesitter",
+    config = function()
+      require("nvim-treesitter.configs").setup {
+        textobjects = {
+          select = {
+            enable = true,
+            lookahead = true,
+            keymaps = {
+              ["af"] = "@function.outer",
+              ["if"] = "@function.inner",
+              ["ac"] = "@class.outer",
+              ["ic"] = "@class.inner",
+              ["aa"] = "@parameter.outer",
+              ["ia"] = "@parameter.inner",
+            },
+          },
+          move = {
+            enable = true,
+            set_jumps = true,
+            goto_next_start = {
+              ["]f"] = "@function.outer",
+              ["]c"] = "@class.outer",
+            },
+            goto_previous_start = {
+              ["[f"] = "@function.outer",
+              ["[c"] = "@class.outer",
+            },
+          },
+        },
+      }
+    end,
   },
 
   -- Treesitter context
@@ -727,5 +773,54 @@ return {
         return vim.ui.input(...)
       end
     end,
+  },
+
+  -- Better code folding
+  {
+    "kevinhwang91/nvim-ufo",
+    dependencies = "kevinhwang91/promise-async",
+    event = "BufRead",
+    opts = {
+      provider_selector = function()
+        return { "treesitter", "indent" }
+      end,
+    },
+    init = function()
+      vim.o.foldcolumn = "0"
+      vim.o.foldlevel = 99
+      vim.o.foldlevelstart = 99
+      vim.o.foldenable = true
+    end,
+  },
+
+  -- Symbol outline
+  {
+    "stevearc/aerial.nvim",
+    cmd = { "AerialToggle", "AerialOpen", "AerialNavToggle" },
+    opts = {
+      backends = { "lsp", "treesitter", "markdown" },
+      layout = {
+        min_width = 28,
+      },
+      attach_mode = "global",
+      close_automatic_events = { "unfocus" },
+    },
+    keys = {
+      { "<leader>a", "<cmd>AerialToggle<cr>", desc = "Aerial (Symbols)" },
+    },
+  },
+
+  -- Breadcrumbs (VSCode-like)
+  {
+    "utilyre/barbecue.nvim",
+    event = "BufRead",
+    dependencies = {
+      "SmiteshP/nvim-navic",
+      "nvim-tree/nvim-web-devicons",
+    },
+    opts = {
+      show_modified = true,
+      theme = "auto",
+    },
   },
 }

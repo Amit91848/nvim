@@ -4,6 +4,17 @@ local capabilities = require("nvchad.configs.lspconfig").capabilities
 
 local lspconfig = require "lspconfig"
 
+local navic_ok, navic = pcall(require, "nvim-navic")
+if navic_ok then
+  local original_on_attach = on_attach
+  on_attach = function(client, bufnr)
+    original_on_attach(client, bufnr)
+    if client.server_capabilities.documentSymbolProvider then
+      navic.attach(client, bufnr)
+    end
+  end
+end
+
 -- Basic LSP servers with default config
 local servers = { "html", "cssls", "jsonls", "yamlls", "prismals" }
 
