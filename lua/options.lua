@@ -1,38 +1,101 @@
 require "nvchad.options"
 
--- add yours here!
+local opt = vim.opt
 
--- local o = vim.o
--- o.cursorlineopt ='both' -- to enable cursorline!
---
-vim.opt.guicursor = ""
+-- Line numbers
+opt.nu = true
+opt.relativenumber = true
 
-vim.opt.nu = true
-vim.opt.relativenumber = true
+-- Indentation
+opt.tabstop = 2
+opt.softtabstop = 2
+opt.shiftwidth = 2
+opt.expandtab = true
+opt.smartindent = true
+opt.autoindent = true
 
-vim.opt.tabstop = 4
-vim.opt.softtabstop = 4
-vim.opt.shiftwidth = 4
-vim.opt.expandtab = true
+-- Line wrapping
+opt.wrap = false
+opt.linebreak = true
 
-vim.opt.smartindent = true
+-- Search settings
+opt.hlsearch = false
+opt.incsearch = true
+opt.ignorecase = true
+opt.smartcase = true
 
-vim.opt.wrap = false
+-- Appearance
+opt.termguicolors = true
+opt.signcolumn = "yes"
+opt.colorcolumn = "120"
+opt.cursorline = true
+opt.guicursor = ""
 
-vim.opt.swapfile = false
-vim.opt.backup = false
-vim.opt.undodir = os.getenv "HOME" .. "/.vim/undodir"
-vim.opt.undofile = true
+-- Scrolling
+opt.scrolloff = 8
+opt.sidescrolloff = 8
 
-vim.opt.hlsearch = false
-vim.opt.incsearch = true
+-- Splits
+opt.splitright = true
+opt.splitbelow = true
 
-vim.opt.termguicolors = true
+-- File handling
+opt.swapfile = false
+opt.backup = false
+opt.undodir = os.getenv "HOME" .. "/.vim/undodir"
+opt.undofile = true
+opt.undolevels = 10000
 
-vim.opt.scrolloff = 8
-vim.opt.signcolumn = "yes"
-vim.opt.isfname:append "@-@"
+-- Performance
+opt.updatetime = 250
+opt.timeoutlen = 300
 
-vim.opt.updatetime = 50
+-- Completion
+opt.completeopt = "menu,menuone,noselect"
+opt.pumheight = 10
 
-vim.opt.colorcolumn = "80"
+-- Misc
+opt.isfname:append "@-@"
+opt.clipboard = "unnamedplus"
+opt.mouse = "a"
+opt.showmode = false
+opt.inccommand = "split"
+
+-- Fold settings
+opt.foldmethod = "expr"
+opt.foldexpr = "nvim_treesitter#foldexpr()"
+opt.foldenable = false
+
+-- Disable some builtin vim plugins
+local disabled_built_ins = {
+  "2html_plugin",
+  "getscript",
+  "getscriptPlugin",
+  "gzip",
+  "logipat",
+  "netrw",
+  "netrwPlugin",
+  "netrwSettings",
+  "netrwFileHandlers",
+  "matchit",
+  "tar",
+  "tarPlugin",
+  "rrhelper",
+  "spellfile_plugin",
+  "vimball",
+  "vimballPlugin",
+  "zip",
+  "zipPlugin",
+  "tutor",
+  "rplugin",
+  "syntax",
+  "synmenu",
+  "optwin",
+  "compiler",
+  "bugreport",
+  "ftplugin",
+}
+
+for _, plugin in pairs(disabled_built_ins) do
+  vim.g["loaded_" .. plugin] = 1
+end
