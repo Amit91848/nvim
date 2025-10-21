@@ -22,24 +22,20 @@ return {
     "williamboman/mason.nvim",
     opts = {
       ensure_installed = {
-        -- LSP
         "lua-language-server",
         "typescript-language-server",
         "html-lsp",
         "css-lsp",
         "tailwindcss-language-server",
-        "json-lsp",
+        "vscode-langservers-extracted",
         "yaml-language-server",
         "prisma-language-server",
         "eslint-lsp",
-        -- Formatters
         "stylua",
         "prettier",
         "black",
         "isort",
-        -- Linters
         "eslint_d",
-        -- Debuggers
         "js-debug-adapter",
       },
     },
