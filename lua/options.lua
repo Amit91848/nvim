@@ -49,6 +49,8 @@ opt.undolevels = 10000
 -- Performance
 opt.updatetime = 250
 opt.timeoutlen = 300
+opt.lazyredraw = false -- Don't redraw while executing macros (keep false for better UI)
+opt.synmaxcol = 240 -- Only syntax highlight first 240 columns (performance)
 
 -- Completion
 opt.completeopt = "menu,menuone,noselect"

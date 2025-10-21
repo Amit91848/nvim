@@ -114,30 +114,16 @@ return {
     "ThePrimeagen/harpoon",
     branch = "harpoon2",
     dependencies = { "nvim-lua/plenary.nvim" },
+    keys = {
+      { "<leader>a", function() require("harpoon"):list():add() end, desc = "Harpoon add file" },
+      { "<C-e>", function() require("harpoon").ui:toggle_quick_menu(require("harpoon"):list()) end, desc = "Harpoon menu" },
+      { "<C-h>", function() require("harpoon"):list():select(1) end, desc = "Harpoon file 1" },
+      { "<C-t>", function() require("harpoon"):list():select(2) end, desc = "Harpoon file 2" },
+      { "<C-n>", function() require("harpoon"):list():select(3) end, desc = "Harpoon file 3" },
+      { "<C-s>", function() require("harpoon"):list():select(4) end, desc = "Harpoon file 4" },
+    },
     config = function()
-      local harpoon = require "harpoon"
-      harpoon:setup()
-
-      vim.keymap.set("n", "<leader>a", function()
-        harpoon:list():add()
-      end, { desc = "Harpoon add file" })
-
-      vim.keymap.set("n", "<C-e>", function()
-        harpoon.ui:toggle_quick_menu(harpoon:list())
-      end, { desc = "Harpoon menu" })
-
-      vim.keymap.set("n", "<C-h>", function()
-        harpoon:list():select(1)
-      end, { desc = "Harpoon file 1" })
-      vim.keymap.set("n", "<C-t>", function()
-        harpoon:list():select(2)
-      end, { desc = "Harpoon file 2" })
-      vim.keymap.set("n", "<C-n>", function()
-        harpoon:list():select(3)
-      end, { desc = "Harpoon file 3" })
-      vim.keymap.set("n", "<C-s>", function()
-        harpoon:list():select(4)
-      end, { desc = "Harpoon file 4" })
+      require("harpoon"):setup()
     end,
   },
 
@@ -159,33 +145,11 @@ return {
   -- Flash - Enhanced motion
   {
     "folke/flash.nvim",
-    event = "VeryLazy",
     opts = {},
     keys = {
-      {
-        "s",
-        mode = { "n", "x", "o" },
-        function()
-          require("flash").jump()
-        end,
-        desc = "Flash",
-      },
-      {
-        "S",
-        mode = { "n", "x", "o" },
-        function()
-          require("flash").treesitter()
-        end,
-        desc = "Flash Treesitter",
-      },
-      {
-        "r",
-        mode = "o",
-        function()
-          require("flash").remote()
-        end,
-        desc = "Remote Flash",
-      },
+      { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash" },
+      { "S", mode = { "n", "x", "o" }, function() require("flash").treesitter() end, desc = "Flash Treesitter" },
+      { "r", mode = "o", function() require("flash").remote() end, desc = "Remote Flash" },
     },
   },
 
@@ -225,7 +189,7 @@ return {
   {
     "kylechui/nvim-surround",
     version = "*",
-    event = "VeryLazy",
+    event = "BufRead",
     config = function()
       require("nvim-surround").setup {}
     end,
@@ -344,45 +308,55 @@ return {
     },
   },
 
-  -- UI Improvements - Noice
-  {
-    "folke/noice.nvim",
-    event = "VeryLazy",
-    dependencies = {
-      "MunifTanjim/nui.nvim",
-      "rcarriga/nvim-notify",
-    },
-    opts = {
-      lsp = {
-        override = {
-          ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
-          ["vim.lsp.util.stylize_markdown"] = true,
-          ["cmp.entry.get_documentation"] = true,
-        },
-      },
-      presets = {
-        bottom_search = true,
-        command_palette = true,
-        long_message_to_split = true,
-        inc_rename = false,
-        lsp_doc_border = true,
-      },
-    },
-  },
+  -- UI Improvements - Noice (DISABLED - causes lag, enable if you want fancy UI)
+  -- {
+  --   "folke/noice.nvim",
+  --   enabled = false, -- Disable by default - it's beautiful but heavy
+  --   event = "VeryLazy",
+  --   dependencies = {
+  --     "MunifTanjim/nui.nvim",
+  --     "rcarriga/nvim-notify",
+  --   },
+  --   opts = {
+  --     lsp = {
+  --       override = {
+  --         ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+  --         ["vim.lsp.util.stylize_markdown"] = true,
+  --         ["cmp.entry.get_documentation"] = true,
+  --       },
+  --       signature = {
+  --         enabled = false, -- Disable Noice signature, use lsp_signature instead
+  --       },
+  --     },
+  --     presets = {
+  --       bottom_search = true,
+  --       command_palette = true,
+  --       long_message_to_split = true,
+  --       inc_rename = false,
+  --       lsp_doc_border = true,
+  --     },
+  --   },
+  -- },
 
   -- Notify
   {
     "rcarriga/nvim-notify",
-    event = "VeryLazy",
+    lazy = true,
     opts = {
-      timeout = 3000,
+      timeout = 2000,
       max_height = function()
         return math.floor(vim.o.lines * 0.75)
       end,
       max_width = function()
         return math.floor(vim.o.columns * 0.75)
       end,
+      render = "compact",
+      stages = "fade",
     },
+    init = function()
+      -- Use notify as default notification handler
+      vim.notify = require("notify")
+    end,
   },
 
   -- Dashboard
@@ -450,9 +424,13 @@ return {
   -- Which-key (better keybinding hints)
   {
     "folke/which-key.nvim",
-    event = "VeryLazy",
+    keys = { "<leader>", '"', "'", "`", "c", "v", "g" },
     opts = {
       plugins = { spelling = true },
+      triggers_blacklist = {
+        i = { "j", "k" },
+        v = { "j", "k" },
+      },
     },
   },
 
@@ -484,7 +462,7 @@ return {
   -- Mini.nvim - Collection of small plugins
   {
     "echasnovski/mini.nvim",
-    event = "VeryLazy",
+    event = "BufRead",
     config = function()
       require("mini.ai").setup() -- Better text objects
       require("mini.move").setup() -- Move lines/blocks
@@ -616,12 +594,14 @@ return {
   -- LSP signature help
   {
     "ray-x/lsp_signature.nvim",
-    event = "VeryLazy",
+    event = "LspAttach",
     opts = {
       bind = true,
       handler_opts = {
         border = "rounded",
       },
+      floating_window = true,
+      hint_enable = false, -- Disable virtual text hint (can cause lag)
     },
   },
 }
